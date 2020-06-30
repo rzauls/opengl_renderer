@@ -11,18 +11,22 @@
 const char* vertexShaderSource =
 "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   gl_Position = vec4(aPos, 1.0);\n"
+"   ourColor = aColor;\n"
 "}\0";
 
 // TODO: this is very crude
 const char* fragmentShaderSource =
 "#version 330 core\n"
 "out vec4 FragColor; \n"
+"in vec3 ourColor; \n"
 "void main()\n"
 "{\n"
-"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"	FragColor = vec4(ourColor, 1.0);\n"
 "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -97,12 +101,13 @@ int main() {
 	// VERTEX DATA, BUFFERS, ATTRIBUTES
 	// --------------------------------
 	float vertices[] = {
-	 0.5f,  0.5f, 0.0f,  // top right
-	 0.5f, -0.5f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  // bottom left
-	-0.5f,  0.5f, 0.0f   // top left 
+		// positions         // colors
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+		-0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   // top left
+		 0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,   // top right
 	};
-	unsigned int indices[] = {  // note that we start from 0!
+	unsigned int indices[] = {  // start from 0
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};
@@ -121,16 +126,13 @@ int main() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	/*
-		0 - location
-		3 - size of vertex attribute
-		GL_FLOAT - type of vertex attribute
-		GL_FALSE - do not normalize data
-		12 - stride (space between consecutive attributes)
-		void* - offset of where the position data begins in the buffer
-	*/
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 
 	/*glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -140,7 +142,7 @@ int main() {
 	glViewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // resize viewport on window resize
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
 
 	while (!glfwWindowShouldClose(window)) // check if window should still be open
 	{
@@ -148,11 +150,18 @@ int main() {
 		processInput(window);
 		
 		// rendering would happen here
-		glClearColor(0.4f, 0.2f, 0.1f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// first triangle
 		glUseProgram(shaderProgram);
+
+		// update uniform color
+		float timeValue = glfwGetTime();
+		float greenValue = sin(timeValue) / 2.0f + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
