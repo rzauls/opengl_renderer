@@ -78,18 +78,24 @@ int main() {
 		// input 
 		processInput(window);
 		
+		float timeValue = (float)glfwGetTime();
+
 		// render
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(sin(-timeValue * 2.0f) / 2.0f + 0.2f, sin(-timeValue * 0.5f) / 2.0f + 0.3f, sin(-timeValue * 3.0f) / 2.0f + 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// the triangle
+		ourShader.setFloat("xOffset", 0.0f);
+		ourShader.setFloat("f_time", sin(timeValue*2.0f)/2.0f+0.5f);
+
 		ourShader.use();
+		/*ourShader.setFloat("xOffset", sin(timeValue)/2.0f+0.5f);*/
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		
-		//float timeValue = glfwGetTime();
-		//float greenValue = sin(timeValue) / 2.0f + 0.5f;
-
+		
+		
+		//sin(timeValue)/2.0f+0.5f
 		// poll events and swap buffers
 		glfwPollEvents();
 		glfwSwapBuffers(window);
