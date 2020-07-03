@@ -8,7 +8,7 @@
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 int main() {
@@ -36,12 +36,10 @@ int main() {
 		return -1;
 	}
 	
-	// BUILD AND COMPILE SHADERS
-	// -------------------------
-	Shader ourShader("src/shader.vert", "src/shader.frag");
+	// Compile shaders	
+	Shader shader("src/shader.vert", "src/shader.frag");
 
-	// VERTEX DATA, BUFFERS, ATTRIBUTES
-	// --------------------------------
+	// Vertex data, buffers, attribues
 	float vertices[] = {
 		// positions         // colors
 		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
@@ -49,54 +47,50 @@ int main() {
 		 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   // top
 	};
 
-	// generate vertex buffer object
+	// Generate vertex buffer object
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	// bind vertex array object, then bind vertex buffer(s) then configure attributes
+	// Bind vertex array object, then bind vertex buffer(s) then configure attributes
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	
-	// position attribute
+	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// color attribute
+	// Color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	glViewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // resize viewport on window resize
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback); // resize viewport on window resize
 	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
 
-	// RENDER LOOP
+	// Render loop
 	while (!glfwWindowShouldClose(window)) // check if window should still be open
 	{
-		// input 
+		// Input
 		processInput(window);
 		
 		float timeValue = (float)glfwGetTime();
 
-		// render
+		// Render
 		glClearColor(sin(-timeValue * 2.0f) / 2.0f + 0.2f, sin(-timeValue * 0.5f) / 2.0f + 0.3f, sin(-timeValue * 3.0f) / 2.0f + 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// the triangle
-		ourShader.setFloat("xOffset", 0.0f);
-		ourShader.setFloat("f_time", sin(timeValue*2.0f)/2.0f+0.5f);
+		// The triangle
+		shader.setFloat("xOffset", 0.0f);
+		shader.setFloat("f_time", sin(timeValue*2.0f)/2.0f+0.5f);
 
-		ourShader.use();
-		/*ourShader.setFloat("xOffset", sin(timeValue)/2.0f+0.5f);*/
+		shader.use();
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		
-		
-		
-		//sin(timeValue)/2.0f+0.5f
-		// poll events and swap buffers
+				
+		// Poll events and swap buffers
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
@@ -106,19 +100,14 @@ int main() {
 }
 
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+// Resize viewport on window size change
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
