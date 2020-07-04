@@ -3,11 +3,8 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "shader.h"
-
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h> // texture image loader
+#include "Shader.h"
+#include "Texture.h"
 
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
@@ -83,53 +80,9 @@ int main() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	// Load  and create textures textures
-	stbi_set_flip_vertically_on_load(true); // flip images on load 
-	unsigned int tex1, tex2;
-	// tex1
-	glGenTextures(1, &tex1);
-	glBindTexture(GL_TEXTURE_2D, tex1);
-	// wrapping options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// filtering options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int img_w, img_h, nrChannels;
-	unsigned char* tex_data = stbi_load("assets/dog.jpeg", &img_w, &img_h, &nrChannels, 0);
-	if (tex_data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_w, img_h, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "failed to load texture" << std::endl;
-	}
-	stbi_image_free(tex_data);
-
-	// tex2
-	glGenTextures(1, &tex2);
-	glBindTexture(GL_TEXTURE_2D, tex2);
-	// wrapping options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// filtering options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	tex_data = stbi_load("assets/dog_with_hat.png", &img_w, &img_h, &nrChannels, 0);
-	if (tex_data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_w, img_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "failed to load texture" << std::endl;
-	}
-	stbi_image_free(tex_data);
+	// load and create textures
+	Texture tex1("assets/dog.jpeg", GL_RGB);
+	Texture tex2("assets/dog_with_hat.png", GL_RGBA);
 
 	// assign textures to uniforms
 	shader.use();
@@ -155,9 +108,9 @@ int main() {
 
 		// Bind textures
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tex1);
+		glBindTexture(GL_TEXTURE_2D, tex1.ID);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex2);
+		glBindTexture(GL_TEXTURE_2D, tex2.ID);
 
 		// render container
 		shader.use();
