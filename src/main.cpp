@@ -12,6 +12,7 @@
 #define DEFAULT_WINDOW_HEIGHT 600
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
+void inputKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);
 
 int main()
@@ -93,6 +94,7 @@ int main()
 
 	glViewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback); // resize viewport on window resize
+	glfwSetKeyCallback(window, inputKeyCallback);					 // key input logging
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
 
@@ -143,4 +145,18 @@ void processInput(GLFWwindow *window)
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void inputKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+	auto key_name = glfwGetKeyName(key, scancode);
+	const char *action_name[3] = {"PRESS", "RELEASE", "REPEAT"};
+	if (key_name)
+	{
+		spdlog::info("Input key event: {} {}", key_name, action_name[action]);
+	}
+	else
+	{
+		spdlog::info("Input key event: {} {}", key, action_name[action]);
+	}
 }
