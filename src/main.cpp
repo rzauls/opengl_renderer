@@ -1,9 +1,13 @@
 #pragma once
 
-// #include <iostream>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "spdlog/spdlog.h"
+#include <glad/glad.h>	   // cross-platform opengl loader
+#include <GLFW/glfw3.h>	   // winapi window generator
+#include "spdlog/spdlog.h" // logger
+
+// matrix/vector utilities
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
 #include "Texture.h"
@@ -19,6 +23,7 @@ int main()
 {
 	// Initialize GLFW
 	spdlog::info("Initializing GLFW");
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -106,6 +111,14 @@ int main()
 		processInput(window);
 
 		float timeValue = (float)glfwGetTime();
+
+		// random transformation stuff
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::rotate(trans, glm::radians(sin(timeValue) * 360.0f), glm::vec3(0.0, 0.0, 1.0));
+		trans = glm::scale(trans, glm::vec3(1.5, 1.5, 1.5));
+
+		auto transformLoc = glGetUniformLocation(shader.ID, "transform"); // get transform uniform id
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 		// Render
 		glClearColor(sin(-timeValue * 2.0f) / 2.0f + 0.2f, sin(-timeValue * 0.5f) / 2.0f + 0.3f, sin(-timeValue * 3.0f) / 2.0f + 0.5f, 1.0f);
