@@ -2,10 +2,10 @@
 #define TEXTURE_H
 
 #include <glad/glad.h>
+#include <spdlog/spdlog.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h> // texture image loader
-#include <iostream>
 
 class Texture
 {
@@ -14,9 +14,9 @@ public:
 	unsigned int ID;
 
 	// read file and set up texture object
-	Texture(const char* imagePath, GLenum format)
+	Texture(const char *imagePath, GLenum format)
 	{
-		stbi_set_flip_vertically_on_load(true); // flip images on load 
+		stbi_set_flip_vertically_on_load(true); // flip images on load
 
 		glGenTextures(1, &ID);
 		glBindTexture(GL_TEXTURE_2D, ID);
@@ -28,7 +28,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		int img_w, img_h, nrChannels;
-		unsigned char* tex_data = stbi_load(imagePath, &img_w, &img_h, &nrChannels, 0);
+		unsigned char *tex_data = stbi_load(imagePath, &img_w, &img_h, &nrChannels, 0);
 		if (tex_data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_w, img_h, 0, format, GL_UNSIGNED_BYTE, tex_data);
@@ -36,10 +36,9 @@ public:
 		}
 		else
 		{
-			std::cout << "failed to load texture" << std::endl;
+			spdlog::error("Failed to load texture file");
 		}
 		stbi_image_free(tex_data);
-
 	}
 };
 #endif // !TEXTURE_H

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <iostream>
+// #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "spdlog/spdlog.h"
+
 #include "Shader.h"
 #include "Texture.h"
 
@@ -15,6 +17,7 @@ void processInput(GLFWwindow *window);
 int main()
 {
 	// Initialize GLFW
+	spdlog::info("Initializing GLFW");
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -24,7 +27,7 @@ int main()
 	auto window = glfwCreateWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "OpenGL window wow", NULL, NULL);
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		spdlog::critical("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -33,7 +36,7 @@ int main()
 	// Initialize GLAD (system specific header loader)
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		spdlog::critical("Failed to initialize GLAD");
 		return -1;
 	}
 
@@ -94,6 +97,7 @@ int main()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
 
 	// Render loop
+	spdlog::info("Init success, entering render loop");
 	while (!glfwWindowShouldClose(window)) // check if window should still be open
 	{
 		// Input
@@ -129,7 +133,10 @@ int main()
 void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		spdlog::info("Exiting application from user input");
 		glfwSetWindowShouldClose(window, true);
+	}
 }
 
 // Resize viewport on window size change
