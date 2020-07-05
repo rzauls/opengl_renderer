@@ -109,16 +109,7 @@ int main()
 	{
 		// Input
 		processInput(window);
-
 		float timeValue = (float)glfwGetTime();
-
-		// random transformation stuff
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::rotate(trans, glm::radians(sin(timeValue) * 360.0f), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3(1.5, 1.5, 1.5));
-
-		auto transformLoc = glGetUniformLocation(shader.ID, "transform"); // get transform uniform id
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 		// Render
 		glClearColor(sin(-timeValue * 2.0f) / 2.0f + 0.2f, sin(-timeValue * 0.5f) / 2.0f + 0.3f, sin(-timeValue * 3.0f) / 2.0f + 0.5f, 1.0f);
@@ -129,10 +120,27 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, tex1.ID);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, tex2.ID);
-
-		// render container
 		shader.use();
 		shader.setFloat("blend_amount", sin(timeValue));
+
+		glm::mat4 trans = glm::mat4(1.0f); // init matrix to identity matrix
+
+		// first thing
+		trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));									 // move
+		trans = glm::rotate(trans, glm::radians(sin(timeValue) * 360.0f), glm::vec3(0.0, 0.0, 1.0)); // rotate
+		trans = glm::scale(trans, glm::vec3(1.5, 1.5, 1.5));										 // scale
+
+		auto transformLoc = glGetUniformLocation(shader.ID, "transform"); // get transform uniform id
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+		// render container
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		// draw second container
+		trans = glm::mat4(1.0f);									  // reset matrix
+		trans = glm::translate(trans, glm::vec3(-0.5f, -0.5f, 0.0f)); // move
+		trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));		  //scale
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
